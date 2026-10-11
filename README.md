@@ -1,6 +1,8 @@
 # OzonBYPriceTracker
 
-<img width="540" height="602" alt="image" src="https://github.com/user-attachments/assets/f005a216-05be-4f67-ab88-213080cff659" /><img width="510" height="517" alt="image" src="https://github.com/user-attachments/assets/79b32a0d-6e0f-457d-959b-84c4a40a3d6a" />
+<img width="540" height="602" alt="image" src="https://github.com/user-attachments/assets/f005a216-05be-4f67-ab88-213080cff659" />
+
+<img width="510" height="517" alt="image" src="https://github.com/user-attachments/assets/79b32a0d-6e0f-457d-959b-84c4a40a3d6a" />
 
 
 **OzonBYPriceTracker** — это расширение для Google Chrome, которое отслеживает цены на товары в магазине **Ozon.by**. Оно добавляет в браузер панель управления списком товаров, автоматически проверяет цены, сохраняет историю изменений, строит графики и уведомляет, когда цена достигает желаемой.
