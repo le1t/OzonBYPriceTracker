@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>График цены</title>
+<link rel="stylesheet" href="chart.css">
+</head>
+<body>
+
+<div class="chart-header">
+  <button id="back" class="back-btn">← Назад</button>
+  <div class="product-info">
+    <img id="productImage" class="product-thumb" src="" alt="">
+    <div>
+      <h1 id="productName">Загрузка...</h1>
+      <a id="productUrl" href="#" target="_blank" rel="noopener">Открыть на Ozon.by ↗</a>
+    </div>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="chart-wrap">
+  <h2>История цены</h2>
+  <div id="chart-container"></div>
+  <div id="chartEmpty" class="chart-empty hidden">Пока нет данных для графика.<br>Добавьте хотя бы одну точку истории цены.</div>
+</div>
+
+<div class="history-wrap">
+  <h2>Все записи <span id="historyCount" class="count"></span></h2>
+  <table id="historyTable">
+    <thead>
+      <tr><th>#</th><th>Дата и время</th><th>Цена</th><th>Изменение</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div class="bottom-actions">
+  <button id="clearHistory" class="danger">🗑 Очистить историю</button>
+</div>
+
+<script src="utils.js"></script>
+<script src="chart.js"></script>
+</body>
+</html>

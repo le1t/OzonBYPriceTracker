@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OzonBYPriceTracker</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="icons/icon128.png" alt="" class="header-icon">
+    <div class="header-brand">
+      <span class="header-title">OzonBYPriceTracker</span>
+      <span id="versionBadge" class="version-badge" title="Версия расширения">v…</span>
+    </div>
+  </div>
+
+  <div class="header-center" id="counterBox" title="Всего товаров в отслеживании">
+    <div class="counter-pill">
+      <span id="counterLabel" class="counter-label">Товаров</span>
+      <span id="counter" class="counter">0</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <button id="alarmMini" class="alarm-mini" type="button" title="Проверка статуса...">
+      <svg class="alarm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span id="alarmTime" class="alarm-time">…</span>
+    </button>
+    <button id="settingsBtn" class="header-btn" title="Настройки" aria-label="Настройки" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div id="stickyBars">
+  <div id="progressBar" class="progress-bar hidden">
+    <div class="progress-line">
+      <span class="progress-count">
+        <span class="progress-count-done" id="progressDone">0</span>
+        <span class="progress-count-sep">/</span>
+        <span class="progress-count-total" id="progressTotal">0</span>
+      </span>
+      <span class="progress-track">
+        <span class="progress-fill" id="progressFill"><span class="progress-fail" id="progressFail"></span></span>
+      </span>
+      <span class="progress-pct" id="progressPct">0%</span>
+      <span class="progress-eta">
+        <span class="progress-eta-label" id="progressEtaLabel">оценка</span>
+        <span class="progress-eta-time" id="progressEtaTime"></span>
+      </span>
+    </div>
+  </div>
+
+  <div id="importBar" class="import-bar hidden">
+    <div class="import-head">
+      <div class="import-title">
+        <span class="import-spinner" id="importSpinner"></span>
+        <span class="import-title-text" id="importTitleText">Сканирую страницу и добавляю товары...</span>
+      </div>
+      <span id="importElapsed" class="import-elapsed" style="display:none">00:00</span>
+      <button id="importStopBtn" class="import-stop-btn" title="Остановить импорт">⏹ Остановить</button>
+    </div>
+    <div class="import-stats">
+      <div class="import-stat found" title="Сколько товаров расширение увидело на странице">
+        <span class="import-stat-icon">📦</span>
+        <div class="import-stat-body">
+          <div class="import-stat-value" id="importFoundCount">0</div>
+          <div class="import-stat-label">Найдено</div>
+        </div>
+      </div>
+      <div class="import-stat added" title="Сколько новых товаров добавлено в отслеживание">
+        <span class="import-stat-icon">✅</span>
+        <div class="import-stat-body">
+          <div class="import-stat-value" id="importAddedCount">0</div>
+          <div class="import-stat-label">Добавлено</div>
+        </div>
+      </div>
+      <div class="import-stat updated" title="Сколько товаров уже в списке — их данные перезаписаны актуальными">
+        <span class="import-stat-icon">♻</span>
+        <div class="import-stat-body">
+          <div class="import-stat-value" id="importUpdatedCount">0</div>
+          <div class="import-stat-label">Обновлено</div>
+        </div>
+      </div>
+      <div class="import-stat skipped" title="Товары, которые не сохранились: не прошли фильтр автоимпорта или оказались невалидными">
+        <span class="import-stat-icon">⏭</span>
+        <div class="import-stat-body">
+          <div class="import-stat-value" id="importSkippedCount">0</div>
+          <div class="import-stat-label">Пропущено</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="actions actions-main">
+  <button id="addCurrent" class="primary" title="Добавить товар с открытой страницы Ozon.by">➕ Добавить товар</button>
+  <button id="checkNow" class="secondary" title="Проверить все товары в списке">🔄 Проверить</button>
+</div>
+
+<div class="actions actions-split" id="addActions">
+  <button id="addFromPageAuto" class="primary" title="Собрать все товары со страницы и добавить в отслеживание (с учётом фильтра в настройках)">⚡ Автоимпорт</button>
+  <button id="addFromPageManual" class="primary outline" title="Собрать все товары со страницы и открыть список для ручного выбора">✋ Выбрать вручную</button>
+</div>
+
+<div class="actions hidden" id="stopAddActions">
+  <button id="stopAddBtn" class="secondary danger-btn">⏹ Остановить</button>
+</div>
+
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Поиск...">
+  <button id="resetBtn" class="icon-btn" title="Сбросить все фильтры">↺</button>
+  <button id="archiveBtn" class="icon-btn" title="Архив удалённых">🗄</button>
+  <button id="deleteShownBtn" class="icon-btn danger-icon" title="Удалить все товары, показанные сейчас">🗑</button>
+</div>
+
+<div class="chips-row">
+  <button id="favoritesFilterBtn" class="chip fav-toggle" title="Только избранные">⭐ <span id="favFilterCount">0</span></button>
+  <button id="changeAllBtn" class="chip change-toggle" title="Все товары с изменениями цены">📈 <span id="changeAllCount">0</span></button>
+  <button id="changeUpBtn" class="chip change-up-toggle" title="Цена повысилась">⬆ <span id="changeUpCount">0</span></button>
+  <button id="changeDownBtn" class="chip change-down-toggle" title="Цена понизилась">⬇ <span id="changeDownCount">0</span></button>
+  <button id="problemToggle" class="chip problem-toggle" title="Товары, которые не удалось проверить">⚠ <span id="problemCount">0</span></button>
+  <button id="recentBtn" class="chip recent-toggle" title="Товары, добавленные за последние сутки">🆕 <span id="recentChipCount">0</span></button>
+</div>
+
+<div id="favPanel" class="fav-panel hidden">
+  <button id="resetDesiredAllBtn" class="fav-panel-btn" type="button" title="Убрать желаемую цену у всех избранных товаров">
+    <svg class="fav-panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="7" y1="7" x2="17" y2="17"/>
+      <line x1="17" y1="7" x2="7" y2="17"/>
+    </svg>
+    <span class="fav-panel-text">Сбросить желаемые цены</span>
+    <span id="resetDesiredCount" class="fav-panel-count">0</span>
+  </button>
+</div>
+
+<div class="sort-bar">
+  <span class="sort-label">Сортировка:</span>
+  <select id="sortSelect" class="sort-select" title="Сортировка">
+    <option value="add-desc">Новые сверху</option>
+    <option value="name-asc">Название А → Я</option>
+    <option value="name-desc">Название Я → А</option>
+    <option value="price-asc">Цена ↑</option>
+    <option value="price-desc">Цена ↓</option>
+    <option value="rating-desc">Рейтинг ↓</option>
+    <option value="reviews-desc">Отзывы ↓</option>
+    <option value="questions-desc">Вопросы ↓</option>
+    <option value="media-desc">Фото/видео ↓</option>
+  </select>
+</div>
+
+<div id="problemActions" class="problem-actions hidden">
+  <div class="problem-info" id="problemInfo"></div>
+  <div class="problem-buttons">
+    <button id="checkFailed" class="problem-btn check-action" title="Перепроверить все товары с ошибками">🔄 Перепроверить проблемные</button>
+  </div>
+  <div class="problem-buttons">
+    <button id="resetCaptcha" class="problem-btn" title="Убрать ошибку капчи">🔓 Сбросить капчу</button>
+    <button id="clearGone" class="problem-btn" title="Удалить только товары, снятые с продажи">🗑 Удалить удалённые</button>
+  </div>
+  <div class="problem-buttons">
+    <button id="clearAllFailed" class="problem-btn danger-full" title="Удалить все товары с любыми ошибками">🗑 Удалить все проблемные</button>
+  </div>
+  <div class="problem-hint" id="problemHint"></div>
+</div>
+
+<div id="settings" class="settings hidden">
+  <div class="settings-section">
+    <div class="settings-section-head">
+      <span class="settings-section-icon">🔄</span>
+      <div class="settings-section-title-block">
+        <div class="settings-section-title">Автопроверка цен</div>
+        <div class="settings-section-sub">Фоновое обновление цен всех товаров по расписанию</div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-info">
+        <div class="settings-row-label">⏱ Интервал</div>
+        <div class="settings-row-help">Как часто проверять все товары. Минимум — 15 минут.</div>
+      </div>
+      <div class="settings-row-control">
+        <input type="text" inputmode="numeric" autocomplete="off" id="defaultInterval" value="60">
+        <span class="settings-row-unit">мин</span>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-info">
+        <div class="settings-row-label">🧩 Одновременных проверок</div>
+        <div class="settings-row-help">Сколько страниц открывать параллельно (1–20). При частых капчах снижается, затем восстанавливается.</div>
+      </div>
+      <div class="settings-row-control">
+        <input type="text" inputmode="numeric" autocomplete="off" id="concurrency" value="3">
+        <span class="settings-row-unit">шт.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section settings-section-accent">
+    <div class="settings-section-head">
+      <span class="settings-section-icon accent">⚡</span>
+      <div class="settings-section-title-block">
+        <div class="settings-section-title accent">⚡ Фильтр автоимпорта</div>
+        <div class="settings-section-sub">Применяется только к кнопке «<b>⚡ Автоимпорт</b>». Режим «✋ Выбрать вручную» показывает все найденные товары.</div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-info">
+        <div class="settings-row-label">⭐ Минимальный рейтинг</div>
+        <div class="settings-row-help">Товары с рейтингом ниже этого значения не добавляются.</div>
+      </div>
+      <div class="settings-row-control">
+        <input type="text" inputmode="decimal" autocomplete="off" id="autoMinRating" value="0">
+        <span class="settings-row-unit">★</span>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-info">
+        <div class="settings-row-label">💬 Минимум отзывов</div>
+        <div class="settings-row-help">Товары с меньшим числом отзывов не добавляются.</div>
+      </div>
+      <div class="settings-row-control">
+        <input type="text" inputmode="numeric" autocomplete="off" id="autoMinReviews" value="0">
+        <span class="settings-row-unit">отз.</span>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-info">
+        <div class="settings-row-label">💰 Максимальная цена</div>
+        <div class="settings-row-help">Товары дороже этой суммы не добавляются.</div>
+      </div>
+      <div class="settings-row-control">
+        <input type="text" inputmode="numeric" autocomplete="off" id="autoMaxPrice" value="0">
+        <span class="settings-row-unit">Br</span>
+      </div>
+    </div>
+    <div class="settings-section-note">Значение <b>0</b> в любом поле — фильтр по этому параметру отключён</div>
+  </div>
+
+  <div class="settings-footer">
+    <button id="clearAll" class="danger">🗑 Удалить все товары</button>
+  </div>
+</div>
+
+<div id="confirmDelete" class="confirm-overlay hidden" role="dialog" aria-modal="true">
+  <div class="confirm-box">
+    <div class="confirm-header" id="confirmDeleteHeader">
+      <span id="confirmDeleteHeaderText">⚠ Подтверждение удаления</span>
+      <button id="confirmDeleteClose" class="manual-close" title="Закрыть">✕</button>
+    </div>
+    <div class="confirm-body">
+      <div class="confirm-question" id="confirmDeleteQuestion">Удалить показанные товары?</div>
+      <div class="confirm-details" id="confirmDeleteDetails"></div>
+      <label class="confirm-check" id="confirmDeleteCheckWrap">
+        <input type="checkbox" id="confirmDeleteCheck">
+        <span id="confirmDeleteCheckLabel">Я понимаю, что удаляю эти товары</span>
+      </label>
+    </div>
+    <div class="confirm-footer">
+      <button id="confirmDeleteCancel" class="secondary">Отмена</button>
+      <button id="confirmDeleteOk" class="primary danger-primary" disabled>🗑 Удалить</button>
+    </div>
+  </div>
+</div>
+
+<div id="list"></div>
+<div id="status" class="status"></div>
+
+<template id="productTpl">
+  <div class="product">
+    <img class="product-image" src="" alt="" loading="lazy">
+    <div class="product-body">
+      <div class="product-head">
+        <a class="product-name" href="#" target="_blank" rel="noopener"></a>
+        <button class="fav-btn" title="В избранное">☆</button>
+      </div>
+      <div class="product-metrics">
+        <a class="metric metric-rating" href="#" target="_blank" rel="noopener"></a>
+        <a class="metric metric-reviews" href="#" target="_blank" rel="noopener"></a>
+        <a class="metric metric-questions" href="#" target="_blank" rel="noopener"></a>
+        <a class="metric metric-media" href="#" target="_blank" rel="noopener"></a>
+      </div>
+      <div class="product-article-row hidden">
+        <span class="product-article-icon">🔖</span><span class="product-article"></span>
+      </div>
+      <div class="product-price-row">
+        <span class="product-price"></span>
+        <span class="product-change"></span>
+      </div>
+
+      <div class="product-desired hidden">
+        <span class="desired-label">🎯 Желаемая цена:</span>
+        <input type="text" inputmode="decimal" autocomplete="off" class="desired-input" placeholder="0.00">
+        <span class="desired-unit">Br</span>
+        <button type="button" class="desired-clear hidden" title="Сбросить желаемую цену" aria-label="Сбросить">✕</button>
+      </div>
+
+      <div class="product-minmax">
+        <div class="minmax-item">
+          <span class="minmax-arrow minmax-arrow-max">↑</span>
+          <span class="minmax-label">Макс:</span>
+          <span class="minmax-price max-val"></span>
+          <span class="minmax-date max-date"></span>
+        </div>
+        <div class="minmax-item">
+          <span class="minmax-arrow minmax-arrow-min">↓</span>
+          <span class="minmax-label">Мин:</span>
+          <span class="minmax-price min-val"></span>
+          <span class="minmax-date min-date"></span>
+        </div>
+        <div class="minmax-range">
+          <span class="range-label">Разница:</span>
+          <span class="range-badge">
+            <span class="range-val"></span>
+            <span class="range-pct"></span>
+          </span>
+        </div>
+      </div>
+      <div class="product-meta"><span class="last-checked"></span></div>
+      <div class="product-actions">
+        <button class="btn-check" title="Проверить сейчас">🔄</button>
+        <button class="btn-chart" title="График">📊 График</button>
+        <button class="btn-delete" title="Удалить">🗑</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<div id="manualPicker" class="manual-picker hidden">
+  <div class="manual-header">
+    <span>Найдено: <b id="manualCount">0</b></span>
+    <button id="manualClose" class="manual-close" title="Закрыть">✕</button>
+  </div>
+  <div class="manual-toolbar">
+    <button id="manualSelectAll" class="manual-tool-btn">✓ Выбрать все</button>
+    <button id="manualDeselectAll" class="manual-tool-btn">✗ Снять все</button>
+  </div>
+  <div id="manualList" class="manual-list"></div>
+  <div class="manual-footer">
+    <button id="manualCancel" class="secondary">Отмена</button>
+    <button id="manualAdd" class="primary">Добавить выбранные</button>
+  </div>
+</div>
+
+<div id="recentPicker" class="manual-picker hidden">
+  <div class="manual-header">
+    <span>🆕 Последние добавленные: <b id="recentCount">0</b></span>
+    <button id="recentClose" class="manual-close" title="Закрыть">✕</button>
+  </div>
+  <div class="manual-toolbar">
+    <button id="recentSelectAll" class="manual-tool-btn">✓ Выбрать все</button>
+    <button id="recentDeselectAll" class="manual-tool-btn">✗ Снять все</button>
+  </div>
+  <div id="recentList" class="manual-list"></div>
+  <div class="manual-footer">
+    <button id="recentCancel" class="secondary">Отмена</button>
+    <button id="recentDelete" class="primary danger-primary">🗑 Удалить выбранные</button>
+  </div>
+</div>
+
+<div id="archivePicker" class="manual-picker hidden">
+  <div class="manual-header">
+    <span>🗄 Архив удалённых: <b id="archiveCount">0</b></span>
+    <button id="archiveClose" class="manual-close" title="Закрыть">✕</button>
+  </div>
+  <div class="manual-toolbar">
+    <button id="archiveSelectAll" class="manual-tool-btn">✓ Выбрать все</button>
+    <button id="archiveDeselectAll" class="manual-tool-btn">✗ Снять все</button>
+  </div>
+  <div id="archiveList" class="manual-list"></div>
+  <div class="manual-footer">
+    <button id="archiveCancel" class="secondary">Закрыть</button>
+    <button id="archiveDelete" class="primary danger-primary">🗑 Удалить насовсем</button>
+  </div>
+</div>
+
+<script src="utils.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "OzonBYPriceTracker",
+  "version": "8.8",
+  "minimum_chrome_version": "130",
+  "description": "Отслеживает цены на Ozon.by, показывает историю",
+  "permissions": ["storage", "unlimitedStorage", "alarms", "tabs", "notifications"],
+  "host_permissions": ["https://*.ozon.by/*"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "OzonBYPriceTracker",
+    "default_icon": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.ozon.by/*"],
+      "js": ["utils.js", "content.js"]
+    }
+  ],
+  "icons": { "128": "icons/icon128.png" }
+}
